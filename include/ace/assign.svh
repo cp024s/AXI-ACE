@@ -16,7 +16,7 @@
 `ifndef ACE_ASSIGN_SVH_
 `define ACE_ASSIGN_SVH_
 
-`include "axi/assign.svh"
+`include "assign.svh"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Internal implementation for assigning one ACE struct or interface to another struct or interface.

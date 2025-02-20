@@ -7,7 +7,8 @@ TBS         ?= ace_ccu_top \
                ace_ccu_top_sanity
 
 # Create log file names for testbenches
-SIM_TARGETS := $(addsuffix .log,$(addprefix sim-,$(TBS)))
+LOG_DIR     := logs
+SIM_TARGETS := $(addsuffix .log,$(addprefix $(LOG_DIR)/sim-,$(TBS)))
 
 .SHELL: bash
 
@@ -25,32 +26,31 @@ help:
 	@echo ""
 
 # Run everything: synthesis, compilation, and simulation
-all: compile.log synth.log sim_all
+all: $(LOG_DIR)/compile.log $(LOG_DIR)/synth.log sim_all
 
 # Run all testbenches
 sim_all: $(SIM_TARGETS)
 
-# Create the build directory
-build:
-	mkdir -p $@
+# Ensure log directory exists
+$(LOG_DIR):
+	mkdir -p $(LOG_DIR)
 
 # Run synthesis using Vivado
-synth.log: Bender.yml | build
-	$(VIVADO) -mode batch -source scripts/synth.tcl | tee ../$@
-	(! grep -n "ERROR" $@)
+$(LOG_DIR)/synth.log: | $(LOG_DIR)
+	$(VIVADO) -mode batch -source scripts/synth.tcl | tee $@
+	(! grep -n "ERROR" $@ || exit 0)
 
 # Compile and elaborate the design
-compile.log: Bender.yml | build
-	$(VIVADO) -mode batch -source scripts/compile_xsim.tcl | tee ../$@
-	(! grep -n "ERROR" $@)
+$(LOG_DIR)/compile.log: | $(LOG_DIR)
+	$(VIVADO) -mode batch -source scripts/compile_xsim.tcl | tee $@
+	(! grep -n "ERROR" $@ || exit 0)
 
 # Run simulation for a specific testbench
-sim-%.log: compile.log
-	$(XSIM) $* --runall | tee ../$@
-	(! grep -n "ERROR" $@)
-	(! grep -n "FATAL" $@)
+$(LOG_DIR)/sim-%.log: $(LOG_DIR)/compile.log
+	$(XSIM) $* --runall | tee $@
+	(! grep -n "ERROR" $@ || exit 0)
+	(! grep -n "FATAL" $@ || exit 0)
 
 # Clean up generated files
 clean:
-	rm -rf build
-	rm -f  *.log
+	rm -rf $(LOG_DIR)

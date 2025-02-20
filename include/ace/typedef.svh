@@ -16,7 +16,7 @@
 `ifndef ACE_TYPEDEF_SVH_
 `define ACE_TYPEDEF_SVH_
 
-`include "axi/typedef.svh"
+`include "typedef.svh"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AXI4+ATOP Channel and Request/Response Structs (with snoop support)

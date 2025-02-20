@@ -9,3 +9,5 @@
 work/
 transcript
 compile.tcl
+*.jou
+
