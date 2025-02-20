@@ -1,0 +1,27 @@
+# Ignore Vivado-generated files
+*.jou
+*.log
+*.str
+*.pb
+*.cache/
+*.hw/
+*.runs/
+*.xpr
+
+# Ignore temporary and backup files
+*.bak
+*.tmp
+*.swp
+.DS_Store  # macOS metadata file
+
+# Ignore compiled files
+*.dcp
+*.bit
+*.bin
+*.elf
+*.coe
+*.mem
+
+# Ignore simulation and synthesis outputs
+sim/
+build/
