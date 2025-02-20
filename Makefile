@@ -54,3 +54,5 @@ $(LOG_DIR)/sim-%.log: $(LOG_DIR)/compile.log
 # Clean up generated files
 clean:
 	rm -rf $(LOG_DIR)
+	rm *.log
+	rm *.jou

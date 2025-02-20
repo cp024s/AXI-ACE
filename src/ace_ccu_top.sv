@@ -11,8 +11,8 @@
 // specific language governing permissions and limitations under the License.
 
 // ace_ccu_top: Top level module for closely coupled cache coherency protocol
-`include "assign.svh"
-`include "typedef.svh"
+`include "ace/assign.svh"
+`include "ace/typedef.svh"
 
 module ace_ccu_top
   import cf_math_pkg::idx_width;
