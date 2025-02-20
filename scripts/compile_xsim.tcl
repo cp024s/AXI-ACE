@@ -1,35 +1,23 @@
-# Print debug message
-puts "🔍 Looking for SystemVerilog files in ../src/"
-
-# Get list of SystemVerilog files in src directory
+# Set project root and directories
 set project_root [file normalize [file dirname [info script]]/..]
-set sv_files [glob -nocomplain "$project_root/src/*.sv"]
+set src_dir "$project_root/src"
+set include_dir "$project_root/include"
 
-# Check if files were found
-if {$sv_files eq ""} {
-    puts "❌ Error: No SystemVerilog files found in $project_root/src/"
+# 🔍 Load package files first (packages should be loaded before other modules)
+set pkg_files [glob -nocomplain "$include_dir/*.svh" "$include_dir/*.sv"]
+if {$pkg_files ne ""} {
+    puts "📦 Loading package files first: $pkg_files"
+    read_verilog -sv -incdir $include_dir $pkg_files
+} else {
+    puts "⚠️ Warning: No package files found in $include_dir!"
+}
+
+# 🔍 Load all other SystemVerilog files (excluding package files)
+set other_files [glob -nocomplain "$src_dir/*.sv"]
+if {$other_files ne ""} {
+    puts "✅ Loading design files: $other_files"
+    read_verilog -sv -incdir $include_dir $other_files
+} else {
+    puts "❌ Error: No design files found in $src_dir!"
     exit 1
-} else {
-    puts "✅ Found files: $sv_files"
 }
-
-# Read the Verilog files
-read_verilog -sv $sv_files
-
-# Load constraints file if it exists
-puts "📌 Reading constraints file..."
-if {[file exists "$project_root/constraints/top.xdc"]} {
-    read_xdc "$project_root/constraints/top.xdc"
-} else {
-    puts "⚠️ Warning: Constraints file not found. Skipping..."
-}
-
-# Elaborate the design for simulation
-puts "🚀 Elaborating the design..."
-xelab ace_ccu_top -s ace_ccu_top_sim
-
-# Run simulation
-puts "🎬 Running simulation..."
-xsim ace_ccu_top_sim -R
-
-exit
