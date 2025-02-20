@@ -1,4 +1,4 @@
-# Set Vivado as the default tool
+# Set Vivado and XSIM as default tools
 VIVADO      ?= vivado
 XSIM        ?= xsim
 
@@ -8,35 +8,36 @@ TBS         ?= ace_ccu_top \
 
 # Create log file names for testbenches
 LOG_DIR     := logs
+BUILD_DIR   := build
 SIM_TARGETS := $(addsuffix .log,$(addprefix $(LOG_DIR)/sim-,$(TBS)))
 
+# Use bash shell
 .SHELL: bash
 
-.PHONY: help all sim_all clean
+.PHONY: help all synth compile sim sim_all clean
 
 help:
 	@echo ""
-	@echo "synth.log:   Runs synthesis using Vivado"
-	@echo "compile.log: Compiles and elaborates design using Vivado XSIM"
-	@echo "sim-#TB#.log: Runs simulation for a given testbench, available TBs are:"
-	@echo "$(addprefix ###############-#,$(TBS))" | sed -e 's/ /\n/g' | sed -e 's/#/ /g'
-	@echo "sim_all: Runs all testbenches"
-	@echo ""
-	@echo "clean:    Removes generated files"
+	@echo "Available targets:"
+	@echo "  make synth     - Runs synthesis and generates reports"
+	@echo "  make compile   - Compiles and elaborates design using XSIM"
+	@echo "  make sim       - Runs simulation"
+	@echo "  make sim_all   - Runs all testbenches"
+	@echo "  make clean     - Removes generated files"
 	@echo ""
 
 # Run everything: synthesis, compilation, and simulation
-all: $(LOG_DIR)/compile.log $(LOG_DIR)/synth.log sim_all
+all: $(LOG_DIR)/synth.log $(LOG_DIR)/compile.log sim_all
 
 # Run all testbenches
 sim_all: $(SIM_TARGETS)
 
-# Ensure log directory exists
-$(LOG_DIR):
-	mkdir -p $(LOG_DIR)
+# Ensure log and build directories exist
+$(LOG_DIR) $(BUILD_DIR):
+	mkdir -p $(LOG_DIR) $(BUILD_DIR)
 
 # Run synthesis using Vivado
-$(LOG_DIR)/synth.log: | $(LOG_DIR)
+$(LOG_DIR)/synth.log: | $(LOG_DIR) $(BUILD_DIR)
 	$(VIVADO) -mode batch -source scripts/synth.tcl | tee $@
 	(! grep -n "ERROR" $@ || exit 0)
 
@@ -51,8 +52,13 @@ $(LOG_DIR)/sim-%.log: $(LOG_DIR)/compile.log
 	(! grep -n "ERROR" $@ || exit 0)
 	(! grep -n "FATAL" $@ || exit 0)
 
+# Run a general simulation
+sim: | $(LOG_DIR)
+	$(VIVADO) -mode batch -source scripts/sim.tcl | tee $(LOG_DIR)/sim.log
+	(! grep -n "ERROR" $(LOG_DIR)/sim.log || exit 0)
+	(! grep -n "FATAL" $(LOG_DIR)/sim.log || exit 0)
+
 # Clean up generated files
 clean:
-	rm -rf $(LOG_DIR)
-	rm *.log
-	rm *.jou
+	rm -rf $(LOG_DIR) $(BUILD_DIR)
+	rm -f *.log *.jou *.str *.wdb
