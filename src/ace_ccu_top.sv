@@ -11,8 +11,8 @@
 // specific language governing permissions and limitations under the License.
 
 // ace_ccu_top: Top level module for closely coupled cache coherency protocol
-`include "../include/ace/assign.svh"
-`include "../include/ace/typedef.svh"
+`include "assign.svh"
+`include "typedef.svh"
 
 module ace_ccu_top
   import cf_math_pkg::idx_width;
@@ -76,9 +76,9 @@ logic [Cfg.NoSlvPorts-1:0]    slv_aw_select, slv_ar_select;
 for (genvar i = 0; i < Cfg.NoSlvPorts; i++) begin : gen_slv_port_demux
 
     // routing of incoming request through transaction type
-    ace_trs_dec #(
+    ace_trs_dec #( 
       .slv_ace_req_t  (       slv_req_t        )
-    ) i_ace_trs_dec (
+      ) i_ace_trs_dec (
       .slv_reqs_i     (   slv_ports_req_i[i]   ),
       .snoop_aw_trs   (   slv_aw_select[i]     ),
       .snoop_ar_trs   (   slv_ar_select[i]     )

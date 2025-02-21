@@ -10,4 +10,5 @@ work/
 transcript
 compile.tcl
 *.jou
-
+*.code-workspace
+*.vscode/
