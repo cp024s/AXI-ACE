@@ -12,3 +12,4 @@ compile.tcl
 *.jou
 *.code-workspace
 *.vscode/
+*.pb
